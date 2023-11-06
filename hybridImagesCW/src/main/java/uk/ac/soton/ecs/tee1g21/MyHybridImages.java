@@ -11,12 +11,12 @@ public class MyHybridImages {
 
     public static void main(String[] args) throws IOException {
 
-        MBFImage lowImage = ImageUtilities.readMBF(new File("hybrid-images/data/cat.bmp"));
-        MBFImage highImage = ImageUtilities.readMBF(new File("hybrid-images/data/dog.bmp"));
+        MBFImage lowImage = ImageUtilities.readMBF(new File("hybrid-images/data/anakin.bmp"));
+        MBFImage highImage = ImageUtilities.readMBF(new File("hybrid-images/data/vader.bmp"));
 
 
-        float lowSigma = 10.0f;
-        float highSigma = 3;
+        float lowSigma = 5;
+        float highSigma = 10;
 
         DisplayUtilities.display(makeHybrid(lowImage, lowSigma, highImage, highSigma));
 
@@ -44,17 +44,16 @@ public class MyHybridImages {
         // image will also have the same height & width as the inputs.
 
         MyConvolution lowConvolution = new MyConvolution(makeGaussianKernel(lowSigma));
-        lowImage.process(lowConvolution);
+        lowImage = lowImage.process(lowConvolution);
 
+        DisplayUtilities.display(lowImage);
 
-        MBFImage temp = highImage;
         MyConvolution highConvolution = new MyConvolution(makeGaussianKernel(highSigma));
-        highImage.process(highConvolution);
+        highImage = highImage.subtract(highImage.process(highConvolution));
 
-        temp.subtract(highImage);
+        DisplayUtilities.display(highImage);
 
-        MBFImage hybridImage = lowImage.add(temp);
-        hybridImage.normalise();
+        MBFImage hybridImage = lowImage.add(highImage);
 
         return hybridImage;
 
@@ -64,6 +63,7 @@ public class MyHybridImages {
         // Use this function to create a 2D gaussian kernel with standard deviation sigma.
         // The kernel values should sum to 1.0, and the size should be floor(8*sigma+1) or
         // floor(8*sigma+1)+1 (whichever is odd) as per the assignment specification.
+
 
         int size = (int) (8.0f * sigma + 1.0f); // (this implies the window is +/- 4 sigmas from the centre of the Gaussian)
         if (size % 2 == 0) size++; // size must be odd
@@ -87,6 +87,15 @@ public class MyHybridImages {
                 kernel[i][j] /= total;
             }
         }
+
+
+
+
+        float[][] sobelHorizontal = {
+                {-1.0f, -2.0f, -1.0f},
+                {0.0f, 0.0f, 0.0f},
+                {1.0f, 2.0f, 1.0f}
+        };
 
         return kernel;
 

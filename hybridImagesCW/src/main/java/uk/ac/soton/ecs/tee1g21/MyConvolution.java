@@ -25,30 +25,37 @@ public class MyConvolution implements SinglebandImageProcessor<Float, FImage> {
         int trows = kernel.length;
         int tcols = kernel[0].length;
 
-        //template centre
-        int tr = (int) Math.floor(trows / 2);
-        int tc = (int) Math.floor(tcols / 2);
+        //padding for input image ALSO equal to kernel centre
+        int rowPadding = trows / 2;
+        int colPadding = tcols / 2;
 
-        //new image start as black
-        FImage newImage = new FImage(cols, rows);
-        newImage.fill(0f);
+        FImage padImage = new FImage(cols + 2 * colPadding, rows + 2 * rowPadding);
+        padImage.fill(0f);
 
-        //convolve
-        for (int x = tc + 1; x == cols - tc; x++){
-            for (int y = tr + 1; y == rows - tr; x++){
-
-                float sum = 0;
-                for (int i = 1; i < tcols; i++){
-                    for (int j = 1; j < trows; j++){
-                        sum = sum + fImage.getPixel(x + i - tr - 1,y + j - tc -1) * kernel[trows - j + 1][tcols - i + 1];
-                    }
-                }
-                newImage.setPixel(x, y, sum);
-
+        for (int x = 0; x < cols; x++) {
+            for (int y = 0; y < rows; y++) {
+                padImage.setPixel(x + colPadding, y + rowPadding, fImage.getPixel(x,y));
             }
         }
-        newImage.normalise();
-        fImage.internalAssign(newImage);
+
+        //new image start as black
+        FImage convImage  = new FImage(cols, rows);
+        convImage.fill(0f);
+
+        for (int x = colPadding; x < cols + colPadding; x++) {
+            for (int y = rowPadding; y < rows + rowPadding; y++) {
+                float sum = 0;
+                for (int i = 0; i < trows; i++) {
+                    for (int j = 0; j < tcols; j++) {
+                        sum = sum + padImage.getPixel(x + j - colPadding, y + i - rowPadding) * kernel[i][j];
+
+                    }
+                }
+                convImage.setPixel(x - colPadding,y - rowPadding, sum);
+            }
+        }
+
+        fImage.internalAssign(convImage);
 
     }
 }
