@@ -11,15 +11,16 @@ public class MyHybridImages {
 
     public static void main(String[] args) throws IOException {
 
-        MBFImage lowImage = ImageUtilities.readMBF(new File("hybrid-images/data/anakin.bmp"));
-        MBFImage highImage = ImageUtilities.readMBF(new File("hybrid-images/data/vader.bmp"));
+        MBFImage lowImage = ImageUtilities.readMBF(new File("hybrid-images/data/vader.bmp"));
+        MBFImage highImage = ImageUtilities.readMBF(new File("hybrid-images/data/anakin.bmp"));
 
 
-        float lowSigma = 5;
+        float lowSigma = 0.5f;
         float highSigma = 10;
 
         DisplayUtilities.display(makeHybrid(lowImage, lowSigma, highImage, highSigma));
 
+        ImageUtilities.write(makeHybrid(lowImage, lowSigma, highImage, highSigma), new File("output-images/vader-anakin.bmp"));
 
     }
 
@@ -46,12 +47,12 @@ public class MyHybridImages {
         MyConvolution lowConvolution = new MyConvolution(makeGaussianKernel(lowSigma));
         lowImage = lowImage.process(lowConvolution);
 
-        DisplayUtilities.display(lowImage);
+        //DisplayUtilities.display(lowImage);
 
         MyConvolution highConvolution = new MyConvolution(makeGaussianKernel(highSigma));
         highImage = highImage.subtract(highImage.process(highConvolution));
 
-        DisplayUtilities.display(highImage);
+        //DisplayUtilities.display(highImage);
 
         MBFImage hybridImage = lowImage.add(highImage);
 
@@ -87,15 +88,6 @@ public class MyHybridImages {
                 kernel[i][j] /= total;
             }
         }
-
-
-
-
-        float[][] sobelHorizontal = {
-                {-1.0f, -2.0f, -1.0f},
-                {0.0f, 0.0f, 0.0f},
-                {1.0f, 2.0f, 1.0f}
-        };
 
         return kernel;
 
