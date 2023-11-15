@@ -29,19 +29,25 @@ public class MyConvolution implements SinglebandImageProcessor<Float, FImage> {
         int rowPadding = trows / 2;
         int colPadding = tcols / 2;
 
+        //creates padding image size of input image add image padding
+        // padImage starts as black
         FImage padImage = new FImage(cols + 2 * colPadding, rows + 2 * rowPadding);
         padImage.fill(0f);
 
+        //overlay input image onto padImage
         for (int x = 0; x < cols; x++) {
             for (int y = 0; y < rows; y++) {
                 padImage.setPixel(x + colPadding, y + rowPadding, fImage.getPixel(x,y));
             }
         }
 
-        //new image start as black
+        //new convoluted image as black
         FImage convImage  = new FImage(cols, rows);
         convImage.fill(0f);
 
+        //perform convolution
+        //Algorithm inspired by Section 3.4.1 ...
+        // ... Feature Extraction and Image Processing for Computer Vision by Prof. Mark Nixon (4th Edition)
         for (int x = colPadding; x < cols + colPadding; x++) {
             for (int y = rowPadding; y < rows + rowPadding; y++) {
                 float sum = 0;
@@ -55,7 +61,7 @@ public class MyConvolution implements SinglebandImageProcessor<Float, FImage> {
             }
         }
 
+        //assign the convoluted image to the input image to be processed
         fImage.internalAssign(convImage);
-
     }
 }
